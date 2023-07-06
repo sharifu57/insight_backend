@@ -1,0 +1,19 @@
+version: "3"
+
+services:
+  backend:
+    restart: "always"
+    build: .
+    environment:
+      IP: 127.0.0.1
+    volumes:
+      - .:/insight
+    command: bash -c "python manage.py runserver 0.0.0.0:8500"
+    container_name: insight
+    image: insight_backend
+    ports:
+      - "8500:8500"
+    networks:
+      - webnet
+networks:
+  webnet:
