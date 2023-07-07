@@ -3,7 +3,16 @@ from rest_framework import permissions
 from rest_framework.decorators import permission_classes
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from django.http import Http404
+from rest_framework import status
 from django.contrib.auth import login
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate
+from django.db.models.query_utils import Q
+from api.serializers import *
+from rest_framework.authtoken.models import Token
+
 
 # Create your views here.
 @permission_classes((permissions.AllowAny,))
@@ -15,17 +24,18 @@ class UserLoginView(APIView):
         
         print("****user details****")
         print(username)
+        print(email)
         print(password)
         print("****password details****")
 
-        if User.objects.filter(Q(username=username)|Q(email=username)).exists():
-            user_obj = User.objects.filter(Q(username=username) | Q(email=username) | Q(email=email)).first()
-            user = authenticate(username = user_obj.username, password = password)
+        # Check if a user with the provided username or email exists
+        if User.objects.filter(Q(username=username) | Q(email=email) | Q(username=email)).exists():
+            user = authenticate(username=username, password=password) or authenticate(email=email, password=password)
             print("user is authenticated")
             print(user)
             if user is not None:
                 if user.is_active:
-                    serializer = UserSerializer(user, many=False)
+                    serializer = LoginSerializer(user, many=False)
                     token, created = Token.objects.get_or_create(user=user)
                     return Response(
                         {

@@ -26,6 +26,8 @@ SECRET_KEY = 'django-insecure-zco1$g(x9sf*fw375do0hdml7@y@6o^6fz&0@4j9me$rb0@ehi
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
+HOST_IP = '192.168.96.1'
+HOST_ADDR = f"http://{HOST_IP}:8500"
 
 
 # Application definition
@@ -37,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework.authtoken',
     'rest_framework',
     'api',
 ]
@@ -75,10 +78,21 @@ WSGI_APPLICATION = 'insight_backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'insight',
+        'USER': 'insight',
+        'PASSWORD': 'qazplm741',
+        'HOST': HOST_IP,
+        'PORT': '5432',
     }
 }
 
