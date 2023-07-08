@@ -21,13 +21,7 @@ class UserLoginView(APIView):
         username = request.data.get('username', None)
         email = request.data.get('email', None)
         password = request.data.get('password', None)
-        
-        print("****user details****")
-        print(username)
-        print(email)
-        print(password)
-        print("****password details****")
-
+   
         # Check if a user with the provided username or email exists
         if User.objects.filter(Q(username=username) | Q(email=email) | Q(username=email)).exists():
             user = authenticate(username=username, password=password) or authenticate(email=email, password=password)
