@@ -29,7 +29,7 @@ class UserLoginView(APIView):
             print(user)
             if user is not None:
                 if user.is_active:
-                    serializer = LoginSerializer(user, many=False)
+                    serializer = UserSerializer(user, many=False)
                     token, created = Token.objects.get_or_create(user=user)
                     return Response(
                         {
