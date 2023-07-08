@@ -29,13 +29,15 @@ class UserLoginView(APIView):
             print(user)
             if user is not None:
                 if user.is_active:
-                    serializer = UserSerializer(user, many=False)
+                    user_serializer = UserSerializer(user, many=False)
+                    profile_serializer = ProfileSerializer(user.profile)
                     token, created = Token.objects.get_or_create(user=user)
                     return Response(
                         {
                             'status': status.HTTP_200_OK,
                             "token": token.key,
-                            "user": serializer.data
+                            "user": user_serializer.data,
+                            "profile": profile_serializer.data
                         }
                     )
                 else:
@@ -60,3 +62,10 @@ class UserLoginView(APIView):
                     'message': 'User does not exist'
                 }
             )
+
+@permission_classes((permissions.AllowAny,))
+class UserProfilesView(APIView):
+    def get(self, request):
+        profiles = UserProfile.objects.all()
+        serializer = ProfileSerializer(profiles, many=True)
+        return Response({'data': serializer.data})

@@ -43,3 +43,13 @@ class UserProfile(MainModel):
         if created:
             instance.save()
         return instance
+    
+
+class Post(MainModel):
+    author = models.ForeignKey(UserProfile, on_delete=models.CASCADE, null=True, blank=True)
+    content = models.TextField(null=True, blank=True)
+    attachment = models.ImageField(upload_to='images/%Y/%m/%d',null=True, blank=True)
+    geolocation = models.CharField(max_length=300, blank=True, null=True)
+    
+    def __str__(self):
+        return f"{self.author.user.username} - {self.content}"
