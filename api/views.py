@@ -21,6 +21,10 @@ class UserLoginView(APIView):
         username = request.data.get('username', None)
         email = request.data.get('email', None)
         password = request.data.get('password', None)
+        
+        print(email)
+        print(username)
+        print(password)
    
         # Check if a user with the provided username or email exists
         if User.objects.filter(Q(username=username) | Q(email=email) | Q(username=email)).exists():
@@ -48,7 +52,6 @@ class UserLoginView(APIView):
                         }
                     )
             else:
-                print("user=====", user)
                 return Response(
                     {
                         'status': status.HTTP_404_NOT_FOUND,
@@ -62,10 +65,72 @@ class UserLoginView(APIView):
                     'message': 'User does not exist'
                 }
             )
+            
+@permission_classes((permissions.AllowAny,))
+class RegisterUserView(APIView):
+    def post(self, request):
+        email = request.data.get('email')
+        username = request.data.get('username')
+        first_name = request.data.get('first_name')
+        last_name = request.data.get('last_name')
+        password = request.data.get('password')
+        
+        if not email or not password or not username:
+            return Response(
+                {
+                    'status': status.HTTP_400_BAD_REQUEST,
+                    'message': 'Email, Username or Password are required'
+                }
+            )
+        
+        if User.objects.filter(email=email).exists():
+            return Response(
+                {
+                    'status': status.HTTP_409_CONFLICT,
+                    'message': 'Email Already Exists'
+                }
+            )
+            
+        if User.objects.filter(username=username).exists():
+            return Response(
+                {
+                    'status': status.HTTP_409_CONFLICT,
+                    'message': "Username does not Exists"
+                }
+            )
+        
+        try:
+            user = User.objects.create_user(username=username, email=email, password=password)
+            user.first_name=first_name
+            user.last_name=last_name
+            user.save()
+        
+        except Exception as e:
+            return Response(
+                {
+                    'status': status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    'message': str(e)
+                }
+            )
+            
+        return Response(
+            {
+                'status': status.HTTP_201_CREATED,
+                'message': "User created Successfully"
+            }
+        )
+        
 
 @permission_classes((permissions.AllowAny,))
 class UserProfilesView(APIView):
     def get(self, request):
         profiles = UserProfile.objects.all()
         serializer = ProfileSerializer(profiles, many=True)
+        return Response({'data': serializer.data})
+    
+@permission_classes((permissions.AllowAny,))
+class getPosts(APIView):
+    def get(self, request):
+        posts = Post.objects.filter(is_active=True, is_deleted=False).order_by('-created')
+        serializer = PostSerializer(posts, many=True)
         return Response({'data': serializer.data})
