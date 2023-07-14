@@ -12,6 +12,7 @@ from django.contrib.auth import authenticate
 from django.db.models.query_utils import Q
 from api.serializers import *
 from rest_framework.authtoken.models import Token
+from django.http import Http404
 
 
 # Create your views here.
@@ -38,8 +39,8 @@ class UserLoginView(APIView):
                     token, created = Token.objects.get_or_create(user=user)
                     return Response(
                         {
-                            'status': status.HTTP_200_OK,
-                            "token": token.key,
+                            'status': status.HTTP_201_CREATED,
+                            "accessToken": token.key,
                             "user": user_serializer.data,
                             "profile": profile_serializer.data
                         }
@@ -120,6 +121,13 @@ class RegisterUserView(APIView):
             }
         )
         
+@permission_classes((permissions.AllowAny,))
+class UsersView(APIView):
+    def get(self, request):
+        users = User.objects.all()
+        serializer = UserSerializer(users, many=True)
+        return Response({'data': serializer.data})
+
 
 @permission_classes((permissions.AllowAny,))
 class UserProfilesView(APIView):
@@ -134,3 +142,76 @@ class getPosts(APIView):
         posts = Post.objects.filter(is_active=True, is_deleted=False).order_by('-created')
         serializer = PostSerializer(posts, many=True)
         return Response({'data': serializer.data})
+
+
+@permission_classes((permissions.AllowAny,))
+class AddPostView(APIView):
+    def post(self, request, format=None):
+        serializer = AddPostSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {
+                    'status': status.HTTP_201_CREATED,
+                    'message': "Post was Created successfully",
+                    'data': serializer.data
+                }
+            )
+        return Response(
+            {
+                'status': status.HTTP_500_INTERNAL_SERVER_ERROR,
+                'message': str(e)
+            }
+        )
+
+@permission_classes((permissions.AllowAny,))
+class ViewOnePost(APIView):
+    def get_post_id(self, pk):
+        try:
+            post = Post.objects.get(pk=pk)
+            return post
+        except Post.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None):
+        post = self.get_post_id(pk)
+        serializer = PostSerializer(post)
+        return Response(serializer.data)
+
+    def put(self, request, pk, format=None):
+        post = self.get_object(pk)
+        serializer = PostSerializer(property, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk, format=None):
+        snippet = self.get_object(pk)
+        snippet.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+@permission_classes((permissions.AllowAny,))
+class CommentsByPost(APIView):
+    def post(self, request, format=None):
+        serializer = CommentSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {
+                    'status': status.HTTP_201_CREATED,
+                    'message': "comment added succesfully",
+                    'data': serializer.data
+                }
+            )
+        return Response(
+            {
+                'status': status.HTTP_500_INTERNAL_SERVER_ERROR,
+                'message': str(e)
+            }
+        )
+            
+
+
+        

@@ -25,8 +25,8 @@ SECRET_KEY = 'django-insecure-zco1$g(x9sf*fw375do0hdml7@y@6o^6fz&0@4j9me$rb0@ehi
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
-HOST_IP = '192.168.96.1'
+ALLOWED_HOSTS = ['*', '{HOST_IP}']
+HOST_IP = '172.31.192.1'
 HOST_ADDR = f"http://{HOST_IP}:8500"
 
 
