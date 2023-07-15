@@ -26,7 +26,7 @@ PASSION_CHOICES = (
     (4, 'Sex and Life')
 )
 class UserProfile(MainModel):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='profile')
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True, related_name='profile')
     bio = models.CharField(max_length=300, null=True, blank=True)
     passion = models.IntegerField(choices=PASSION_CHOICES, default=0, null=True, blank=True)
     location = models.CharField(max_length=300, null=True, blank=True)
@@ -36,20 +36,33 @@ class UserProfile(MainModel):
     cover = models.ImageField(upload_to='images/%Y/%m/%d',null=True, blank=True)
     
     def __str__(self):
-        return self.user.username
+        return self.user.email
     
     @receiver(post_save, sender=User)
-    def update_profile(sender, created, instance, **kwargs):
+    def create_user_profile(sender, instance, created, **kwargs):
         if created:
-            instance.save()
-        return instance
+            UserProfile.objects.create(user=instance)
+
+    @receiver(post_save, sender=User)
+    def save_user_profile(sender, instance, **kwargs):
+        instance.profile.save()
     
 
 class Post(MainModel):
-    author = models.ForeignKey(UserProfile, on_delete=models.CASCADE, null=True, blank=True)
+    code = models.CharField(max_length=300, null=True, blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     content = models.TextField(null=True, blank=True)
     attachment = models.ImageField(upload_to='images/%Y/%m/%d',null=True, blank=True)
     geolocation = models.CharField(max_length=300, blank=True, null=True)
     
     def __str__(self):
-        return f"{self.author.user.username} - {self.content}"
+        return self.code
+
+
+class Comment(MainModel):
+    post = models.ForeignKey(Post, related_name='comment', on_delete=models.CASCADE, null=True, blank=True)
+    user = models.ForeignKey(User, related_name='comment', on_delete=models.CASCADE, null=True, blank=True)
+    content = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return self.user.email  
