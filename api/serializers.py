@@ -12,7 +12,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class UserSerializer(serializers.ModelSerializer):
-    profile = ProfileSerializer()
+    # profile = ProfileSerializer()
 
     class Meta:
         model = User
