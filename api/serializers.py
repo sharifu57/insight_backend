@@ -17,11 +17,13 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = '__all__'
+        
 
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = '__all__'
+        depth = 2
 
 class PostSerializer(serializers.ModelSerializer):
     user = UserSerializer()
@@ -37,18 +39,7 @@ class AddPostSerializer(serializers.ModelSerializer):
         fields = ['user', 'content', 'attachment']
         depth = 2
 
-
-
-    
-
-
-
-
-
-        
-
-
-        
+     
 
 
 class CreatePostSerializer(serializers.ModelSerializer):

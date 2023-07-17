@@ -26,7 +26,11 @@ SECRET_KEY = 'django-insecure-zco1$g(x9sf*fw375do0hdml7@y@6o^6fz&0@4j9me$rb0@ehi
 DEBUG = True
 
 ALLOWED_HOSTS = ['*', '{HOST_IP}']
+<<<<<<< HEAD
 HOST_IP = '192.168.2.4'
+=======
+HOST_IP = '192.168.252.242'
+>>>>>>> fac389ecb0fc502b8b06cc304c80b1a445d56948
 HOST_ADDR = f"http://{HOST_IP}:8500"
 
 

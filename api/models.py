@@ -65,4 +65,4 @@ class Comment(MainModel):
     content = models.TextField(null=True, blank=True)
 
     def __str__(self):
-        return self.user.email
+        return self.user.email  
